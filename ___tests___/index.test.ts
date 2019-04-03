@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 import mockingoose from '../src/index';
 import { tuple } from '../src/tuple';
-import User from './User';
+import { Foo, User } from './User';
 
 describe('mockingoose', () => {
   beforeEach(() => {
@@ -50,6 +50,28 @@ describe('mockingoose', () => {
       expect(result.toObject()).toHaveProperty('created');
       expect(result.toObject()).toMatchObject({ name: '2' });
       expect(result).toBeInstanceOf(User);
+    });
+
+    describe('should work with populate', () => {
+      it('should return the doc with findById', async () => {
+        const docObj = {
+          _id: '507f191e810c19729de860ea',
+          email: 'name@email.com',
+          foo: {
+            name: 'bar',
+          },
+          name: 'name',
+        };
+
+        mockingoose.User.toReturn(() => docObj, 'findOne');
+
+        const user = await User.findOne({
+          _id: '507f191e810c19729de860ea',
+        }).populate('foo');
+
+        expect(user.foo).toBeDefined();
+        expect(user.foo).toMatchObject(docObj.foo);
+      });
     });
 
     it('should work with mockingoose(User)', async () => {
